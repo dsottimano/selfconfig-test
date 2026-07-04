@@ -1,0 +1,16 @@
+{
+  "locations": {
+    "header": {
+      "desktop": [
+        { "label": "Blog", "url": "/en/journal" }
+      ],
+      "tablet": null,
+      "mobile": null
+    },
+    "footer": {
+      "desktop": [],
+      "tablet": null,
+      "mobile": null
+    }
+  }
+}

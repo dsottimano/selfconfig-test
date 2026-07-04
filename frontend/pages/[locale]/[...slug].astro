@@ -1,0 +1,18 @@
+---
+import PagePage from "../../components/PagePage.astro";
+import { publishedPages } from "../../lib/routing";
+import { splitEntries } from "../../lib/paths";
+
+// Localized standalone Pages (/es/about/, /fr/about/). Non-default locales only.
+export async function getStaticPaths() {
+  const { localized } = splitEntries(await publishedPages());
+  return localized.map(({ entry, locale, slug }) => ({
+    params: { locale, slug },
+    props: { page: entry, locale },
+  }));
+}
+
+const { page, locale } = Astro.props;
+---
+
+<PagePage page={page} locale={locale} />

@@ -1,0 +1,17 @@
+---
+import { getCollection } from "astro:content";
+import TagPage from "../../components/TagPage.astro";
+import { DEFAULT_LOCALE } from "../../lib/i18n";
+import { splitEntries } from "../../lib/paths";
+
+// Default-locale (EN) tag archives at /tag/<stem>/. Posts store bare term stems.
+// ES/FR archives come from [locale]/tag/[slug].astro.
+export async function getStaticPaths() {
+  const { root } = splitEntries(await getCollection("tags"));
+  return root.map(({ entry, slug }) => ({ params: { slug }, props: { tag: entry } }));
+}
+
+const { tag } = Astro.props;
+---
+
+<TagPage tag={tag} locale={DEFAULT_LOCALE} />

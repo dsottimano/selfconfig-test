@@ -1,0 +1,17 @@
+---
+import { getCollection } from "astro:content";
+import CategoryPage from "../../components/CategoryPage.astro";
+import { DEFAULT_LOCALE } from "../../lib/i18n";
+import { splitEntries } from "../../lib/paths";
+
+// Default-locale (EN) category archives at /category/<stem>/. Posts store bare
+// term stems (no locale). ES/FR archives come from [locale]/category/[slug].astro.
+export async function getStaticPaths() {
+  const { root } = splitEntries(await getCollection("categories"));
+  return root.map(({ entry, slug }) => ({ params: { slug }, props: { category: entry } }));
+}
+
+const { category } = Astro.props;
+---
+
+<CategoryPage category={category} locale={DEFAULT_LOCALE} />

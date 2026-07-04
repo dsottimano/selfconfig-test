@@ -1,0 +1,17 @@
+---
+import { getCollection } from "astro:content";
+import AuthorPage from "../../components/AuthorPage.astro";
+import { DEFAULT_LOCALE } from "../../lib/i18n";
+
+// Authors are not localized (a name is language-neutral) — one flat folder, so
+// author.id is already the bare stem. The root archive lists default-locale (EN)
+// posts; ES/FR author archives come from [locale]/author/[slug].astro.
+export async function getStaticPaths() {
+  const authors = await getCollection("authors");
+  return authors.map((author) => ({ params: { slug: author.id }, props: { author } }));
+}
+
+const { author } = Astro.props;
+---
+
+<AuthorPage author={author} locale={DEFAULT_LOCALE} />

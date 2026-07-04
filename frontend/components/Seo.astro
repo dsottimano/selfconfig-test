@@ -1,0 +1,66 @@
+---
+import { resolveSeo, absUrl, type PageSeo } from "../lib/seo";
+import {
+  organizationSchema,
+  websiteSchema,
+  articleSchema,
+  buildGraph,
+  jsonLdString,
+  type ArticleInput,
+} from "../lib/jsonld";
+import { DEFAULT_LOCALE, type Locale } from "../lib/i18n";
+import type { Alternate } from "../lib/alternates";
+
+interface Props {
+  seo?: PageSeo;
+  /** When set, adds a BlogPosting node to the JSON-LD graph. */
+  article?: ArticleInput | null;
+  /** Active locale — selects per-locale SEO defaults and og:locale. */
+  locale?: Locale;
+  /** This page's other-language URLs — emitted as hreflang alternates. */
+  alternates?: Alternate[];
+}
+
+const { seo = {}, article = null, locale = DEFAULT_LOCALE, alternates = [] } = Astro.props;
+
+// Origin comes from astro.config `site` (set per deploy), not the CMS.
+const siteUrl = (Astro.site ?? new URL("/", Astro.url)).href.replace(/\/$/, "");
+const s = resolveSeo(seo, Astro.url.pathname, siteUrl, locale);
+
+// hreflang only helps when a page has more than one language. x-default points at
+// the default locale's version when present.
+const hreflangs = alternates.length > 1 ? alternates : [];
+const xDefault = hreflangs.find((a) => a.locale === DEFAULT_LOCALE);
+
+const graph = buildGraph([
+  websiteSchema(siteUrl, locale),
+  organizationSchema(siteUrl, locale),
+  article ? articleSchema(article, siteUrl, locale) : null,
+]);
+---
+
+<title>{s.title}</title>
+<link rel="canonical" href={s.canonical} />
+<meta name="description" content={s.description} />
+
+{hreflangs.map((a) => <link rel="alternate" hreflang={a.locale} href={absUrl(a.url, siteUrl)} />)}
+{xDefault && <link rel="alternate" hreflang="x-default" href={absUrl(xDefault.url, siteUrl)} />}
+{s.noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<meta property="og:type" content={s.ogType} />
+<meta property="og:title" content={s.title} />
+<meta property="og:description" content={s.description} />
+<meta property="og:url" content={s.canonical} />
+<meta property="og:site_name" content={s.siteName} />
+<meta property="og:locale" content={s.locale} />
+{s.ogImage && <meta property="og:image" content={s.ogImage} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+{s.twitter && <meta name="twitter:site" content={s.twitter} />}
+{s.twitterCreator && <meta name="twitter:creator" content={s.twitterCreator} />}
+
+<script type="application/ld+json" set:html={jsonLdString(graph)} />
+
+{/* Lanza treats AI agents as first-class visitors — see /llms.txt and window.lanza (public/lanza.js). */}
+<meta name="lanza:agent-api" content="window.lanza — call lanza.help()" />
+<link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt for AI agents" />

@@ -1,0 +1,20 @@
+{
+  "name": "site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build:admin": "npm --prefix admin ci && npm --prefix admin run build",
+    "build": "npm run build:admin && node scripts/gen-redirects.mjs && node scripts/gen-content-config.mjs && astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "astro": "7.0.3",
+    "isomorphic-dompurify": "3.18.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "typescript": "6.0.3"
+  }
+}

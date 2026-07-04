@@ -1,0 +1,18 @@
+---
+import { getCollection } from "astro:content";
+import TagPage from "../../../components/TagPage.astro";
+import { splitEntries } from "../../../lib/paths";
+
+// Localized tag archives (/es/tag/x/). Non-default locales only.
+export async function getStaticPaths() {
+  const { localized } = splitEntries(await getCollection("tags"));
+  return localized.map(({ entry, locale, slug }) => ({
+    params: { locale, slug },
+    props: { tag: entry, locale },
+  }));
+}
+
+const { tag, locale } = Astro.props;
+---
+
+<TagPage tag={tag} locale={locale} />

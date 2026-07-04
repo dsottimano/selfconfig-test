@@ -1,0 +1,38 @@
+---
+// Single page body — the <main> shared by the EN route (/about/) and the
+// localized mirror (/es/about/). Pages render frontmatter blocks + the rich body.
+import type { CollectionEntry } from "astro:content";
+import Blocks from "./Blocks.astro";
+import Preset from "./Preset.astro";
+import { sanitizeBody } from "../lib/sanitize";
+import { resolveTemplate, templateClass, isLanding } from "../lib/templates";
+
+interface Props {
+  page: CollectionEntry<"pages">;
+  // Resolved template name (from PagePage). Drives the <main> class + landing chrome.
+  template?: string;
+}
+
+const { page } = Astro.props;
+const body = sanitizeBody(page.body ?? "");
+const template = Astro.props.template ?? resolveTemplate(page.data);
+const landing = isLanding(template);
+---
+
+<main class={templateClass(template)}>
+  {
+    page.data.preset ? (
+      // A chosen template owns the whole page — skip the default title/body chrome.
+      <Preset name={page.data.preset} slots={page.data.slots ?? {}} />
+    ) : (
+      <>
+        {!landing && <h1>{page.data.title}</h1>}
+        {page.data.featuredImage && (
+          <img src={page.data.featuredImage} alt={page.data.title} />
+        )}
+        {page.data.blocks.length > 0 && <Blocks blocks={page.data.blocks} />}
+        <article class="post-body" set:html={body} />
+      </>
+    )
+  }
+</main>

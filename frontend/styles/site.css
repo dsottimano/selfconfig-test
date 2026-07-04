@@ -1,0 +1,515 @@
+/* Lanza public-site design.
+   One stylesheet, driven by CSS variables. The base look is Freehold — Lanza's
+   own manifesto design — and it lives right here in :root, applied to every page
+   unconditionally (there is no theme switch). The CMS's Settings → Brand writes a
+   `brand` block into src/data/appearance.json; Base.astro turns it into inline
+   custom-property overrides on <html> that beat these defaults, so the brand
+   editor fully owns colors / corners / motion / fonts. Per-page `layout` adds a
+   class on <main>. */
+
+/* ── tokens (the wordmark base — overridable per-site via Settings → Brand) ──
+   The identity is the Lanza wordmark itself: monochrome Ink (#201d1b) on Paper
+   (#f3f1ea), set in Jost (Futura-like geometric sans), plus ONE hot "launch"
+   accent (#e4431b) — the colour of the wordmark's ↗ arrow. lanza = throw /
+   launch: the accent is withheld to near-pinpoint (the arrow, links, CTAs, the
+   "live/published" dot) so the page stays strict monochrome and the accent
+   reads as escape velocity onto the open web. JetBrains Mono carries the
+   machine truth — repo paths, commit hashes, the pipeline, llms.txt. Sharp
+   corners, hairline rules, light + dark. Consumers that predate the monochrome
+   move still read the old --deed-green/--brass names (aliased below). */
+:root {
+  --font-ui: "Jost", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-prose: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* the monochrome + launch palette */
+  --paper: #f3f1ea;
+  --paper-card: #fbf9f3;
+  --ink: #201d1b;
+  --ink-deep: #17140f;      /* near-black bands */
+  --accent: #e4431b;        /* launch — links, CTAs, the ↗ arrow, the live dot */
+  --accent-bright: #ff5a2c; /* accent on dark grounds + hover */
+
+  --bg: var(--paper);
+  --surface: #eae7dd;
+  --muted: #6b655e;
+  --border: #ddd8cc;
+  --rule: #ddd8cc;
+  --text-secondary: #4a453f;
+
+  --content: 46rem; /* reading column */
+  --wide: 1120px;
+  --radius: 2px;
+
+  --h1-size: clamp(2.6rem, 6vw, 4.4rem);
+  --h1-weight: 600;
+  --prose-size: 1.12rem;
+  --prose-leading: 1.75;
+  --header-border: 1px solid var(--border);
+  --nav-transform: uppercase;
+  --nav-weight: 500;
+
+  /* back-compat aliases — remap the old deed-green/brass world onto monochrome +
+     launch so the Manifesto/PostCard/JournalIndex/404 keep rendering until each
+     is reworked. */
+  --deed-green: var(--ink-deep);
+  --deed-green-deep: #0f0d0a;
+  --brass: var(--accent);
+  --brass-bright: var(--accent-bright);
+  --parchment: var(--paper);
+  --parchment-card: var(--paper-card);
+  --gold: var(--accent);
+  --border-subtle: var(--rule);
+  --on-accent: #fff;
+  --wide-width: var(--wide);
+}
+
+/* Dark — the default theme inverts Paper↔Ink automatically (no toggle, stays
+   static/cacheable). Brand overrides are set inline on <html>, so they beat both
+   maps: a branded site keeps its chosen palette, only the un-branded base flips. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17140f;
+    --paper-card: #221e19;
+    --ink: #f3f1ea;
+    --ink-deep: #0f0d0a;
+    --accent: #ff5a2c;
+    --accent-bright: #ff7a4d;
+    --surface: #221e19;
+    --muted: #a49d92;
+    --border: #34302a;
+    --rule: #34302a;
+    --text-secondary: #cfc9bd;
+    --deed-green: #26201b;   /* a raised panel reads as a band on the dark page */
+    --deed-green-deep: #1c1813;
+    --on-accent: #17140f;
+  }
+}
+
+/* ── base ──────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+a {
+  color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+/* ── site header / footer ──────────────────────────────────────────────── */
+.site-header {
+  border-bottom: var(--header-border);
+}
+.site-header .bar {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.brand {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.site-nav {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: var(--nav-weight);
+  text-transform: var(--nav-transform);
+  letter-spacing: 0.01em;
+}
+.site-nav a:hover {
+  color: var(--ink);
+}
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 5rem;
+}
+.site-footer .bar {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ── content column + per-page layout ──────────────────────────────────── */
+main {
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 3.5rem 1.25rem 1rem;
+}
+main.layout-wide {
+  max-width: var(--wide);
+}
+main.layout-landing {
+  max-width: none;
+  padding: 0;
+}
+main.layout-landing > h1:first-child {
+  max-width: var(--wide);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+/* ── headings + entry meta ─────────────────────────────────────────────── */
+h1 {
+  font-family: var(--font-heading);
+  font-size: var(--h1-size);
+  font-weight: var(--h1-weight);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.6rem;
+}
+.byline,
+.taxonomy {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 0.4rem;
+}
+.byline a,
+.taxonomy a {
+  color: var(--muted);
+}
+.taxonomy a {
+  margin-right: 0.6rem;
+}
+main > img {
+  border-radius: var(--radius);
+  margin: 1.4rem 0;
+}
+
+/* ── prose (the rendered post/page body) ───────────────────────────────── */
+.post-body {
+  font-family: var(--font-prose);
+  font-size: var(--prose-size);
+  line-height: var(--prose-leading);
+  color: var(--ink);
+  margin-top: 2rem;
+}
+.post-body > * + * {
+  margin-top: 1.15em;
+}
+.post-body h2 {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  margin-top: 1.9em;
+}
+.post-body h3 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin-top: 1.5em;
+}
+.post-body a {
+  text-decoration: underline;
+}
+/* Highlight mark emitted by the editor. Uses the accent so it tracks each
+   theme; box-decoration-break keeps the wash intact across wrapped lines. */
+.post-body mark {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  color: inherit;
+  padding: 0.05em 0.15em;
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.post-body ul,
+.post-body ol {
+  padding-left: 1.4em;
+}
+.post-body ul { list-style: disc; }
+.post-body ol { list-style: decimal; }
+.post-body blockquote {
+  margin: 1.5em 0;
+  padding-left: 1.1rem;
+  border-left: 3px solid var(--accent);
+  font-style: italic;
+  color: var(--muted);
+}
+.post-body hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.4em 0;
+}
+.post-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+  background: var(--surface);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+.post-body pre {
+  background: #18181b;
+  color: #e4e4e7;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.post-body pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ── cards (Lanza editor output) ───────────────────────────────────────── */
+.post-body .callout {
+  display: flex;
+  gap: 0.7rem;
+  padding: 1rem 1.2rem;
+  margin: 1.5em 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+.post-body .callout::before {
+  content: attr(data-emoji);
+  flex: 0 0 auto;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+.post-body .figure {
+  margin: 1.8em 0;
+  text-align: center;
+}
+.post-body .figure img {
+  border-radius: var(--radius);
+}
+.post-body .figure figcaption {
+  margin-top: 0.6em;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.post-body .embed {
+  margin: 1.8em 0;
+}
+.post-body .embed iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius);
+}
+
+/* ── index post list ───────────────────────────────────────────────────── */
+main > ul {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+}
+main > ul > li {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+main > ul > li > a {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  text-decoration: none;
+}
+main > ul > li > a:hover {
+  text-decoration: underline;
+}
+
+/* ── page-builder blocks ───────────────────────────────────────────────── */
+.block {
+  margin: 2.5rem 0;
+}
+.block-hero {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+.block-hero img {
+  border-radius: var(--radius);
+  margin-bottom: 1.2rem;
+}
+.block-hero h2 {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  margin: 0 0 0.5rem;
+}
+.block-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.8rem;
+}
+.block-gallery img {
+  width: 100%;
+  border-radius: var(--radius);
+}
+.block-image figcaption {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+.block-cta {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+.button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.7rem 1.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+/* ═══ MOTION (Settings → Brand) ═════════════════════════════════════════════
+   Theme-independent. Off by default; <html data-motion="on"> (set from
+   appearance.json's brand.motion) adds subtle hover/press feedback to the
+   interactive chrome — buttons, nav, index links, CTA cards. Purely additive:
+   nothing here changes layout, and prefers-reduced-motion opts the user out. */
+[data-motion="on"] .button,
+[data-motion="on"] .u-btn,
+[data-motion="on"] .site-nav a,
+[data-motion="on"] main > ul > li > a,
+[data-motion="on"] .block-cta,
+[data-motion="on"] .brand {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, color 0.15s ease, opacity 0.15s ease;
+}
+[data-motion="on"] .button:hover,
+[data-motion="on"] .u-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+[data-motion="on"] .button:active,
+[data-motion="on"] .u-btn:active {
+  transform: translateY(0);
+}
+[data-motion="on"] .site-nav a:hover,
+[data-motion="on"] main > ul > li > a:hover {
+  opacity: 0.72;
+}
+[data-motion="on"] .block-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px -18px color-mix(in srgb, var(--ink) 45%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-motion="on"] * {
+    transition: none !important;
+  }
+  [data-motion="on"] .button:hover,
+  [data-motion="on"] .u-btn:hover,
+  [data-motion="on"] .block-cta:hover {
+    transform: none;
+  }
+}
+
+/* ── shared utility primitives (used by the blog index + 404) ─────────────── */
+.u-kicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-family: var(--font-ui);
+}
+.u-btn {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--bg);
+  border: 0;
+  padding: 0.85rem 1.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--font-ui);
+}
+
+/* ═══ base chrome — the header/nav/footer skin ══════════════════════════════
+   Applies to every page (tokens live in :root above). Brand overrides recolor
+   these through the custom properties they read. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  font-optical-sizing: auto;
+}
+/* the wordmark lockup — inlined SVG (fill=currentColor) so it flips with the
+   theme; the ↗ arrow is stroked in the launch accent. */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink);
+  text-decoration: none;
+}
+.brand .wordmark {
+  display: block;
+  height: 1.5rem;
+  width: auto;
+}
+.brand .wordmark__arrow { stroke: var(--accent); }
+.site-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
+.nav-locale {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.nav-locale a { color: var(--muted); text-decoration: none; }
+.nav-locale a:hover,
+.nav-locale .is-active { color: var(--ink); }
+
+/* Near-black footer — the closing rule of the page */
+.site-footer {
+  background: var(--ink-deep);
+  color: #b8b2a6;
+  margin-top: 0;
+  border-top: 0;
+}
+.site-footer .bar {
+  color: #b8b2a6;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+.site-footer a { color: var(--accent-bright); }

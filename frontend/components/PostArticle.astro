@@ -1,0 +1,61 @@
+---
+// Single post body — the <main> shared by the EN route (/posts/x/) and the
+// localized mirror (/es/posts/x/). All internal links carry the locale prefix
+// via localeUrl, so the same markup serves every language.
+import type { CollectionEntry } from "astro:content";
+import { sanitizeBody } from "../lib/sanitize";
+import { localeUrl, type Locale } from "../lib/i18n";
+import { resolveTerms } from "../lib/taxonomy";
+import { resolveTemplate, templateClass, isLanding } from "../lib/templates";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+  locale: Locale;
+  // Resolved author display name; `slug` present → link to the author archive.
+  author?: { name: string; slug?: string };
+  // Resolved template name (from PostPage). Drives the <main> class + landing chrome.
+  template?: string;
+}
+
+const { post, locale, author } = Astro.props;
+const body = sanitizeBody(post.body ?? "");
+// Chips show resolved term titles ("Web Development"), not the stored slug.
+const categories = await resolveTerms("categories", locale, post.data.categories);
+const tags = await resolveTerms("tags", locale, post.data.tags);
+const template = Astro.props.template ?? resolveTemplate(post.data);
+const landing = isLanding(template);
+---
+
+<main class={templateClass(template)}>
+  {!landing && <h1>{post.data.title}</h1>}
+  {
+    author?.name && (
+      <p class="byline">
+        By{" "}
+        {author.slug ? (
+          <a href={localeUrl(locale, `author/${author.slug}/`)}>{author.name}</a>
+        ) : (
+          author.name
+        )}
+      </p>
+    )
+  }
+  {
+    post.data.featuredImage && (
+      <img src={post.data.featuredImage} alt={post.data.title} />
+    )
+  }
+  {
+    (post.data.categories.length > 0 || post.data.tags.length > 0) && (
+      <p class="taxonomy">
+        {categories.map((c) => (
+          <a href={localeUrl(locale, `category/${c.slug}/`)}>{c.title}</a>
+        ))}
+        {tags.map((t) => (
+          <a href={localeUrl(locale, `tag/${t.slug}/`)}>#{t.title}</a>
+        ))}
+      </p>
+    )
+  }
+  <article class="post-body" set:html={body} />
+</main>

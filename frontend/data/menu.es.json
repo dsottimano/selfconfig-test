@@ -1,0 +1,16 @@
+{
+  "locations": {
+    "header": {
+      "desktop": [
+        { "label": "Blog", "url": "/posts" }
+      ],
+      "tablet": null,
+      "mobile": null
+    },
+    "footer": {
+      "desktop": [],
+      "tablet": null,
+      "mobile": null
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "siteName": "Lanza",
+  "titleTemplate": "%s · Lanza",
+  "defaultTitle": "Lanza — Own your corner of the open web",
+  "defaultDescription": "A free, self-owned website on GitHub and Cloudflare, editable by talking to an AI agent. The anti-WordPress CMS.",
+  "defaultOgImage": "",
+  "locale": "en_US",
+  "twitter": "",
+  "twitterCreator": "",
+  "organization": {
+    "name": "Lanza",
+    "logo": "",
+    "sameAs": []
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "defaultLocale": "es",
+  "locales": [
+    {
+      "code": "es",
+      "label": "Español",
+      "ogLocale": "es_PA"
+    }
+  ],
+  "onboarded": true
+}

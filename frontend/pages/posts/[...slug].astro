@@ -1,0 +1,17 @@
+---
+import PostPage from "../../components/PostPage.astro";
+import { DEFAULT_LOCALE } from "../../lib/i18n";
+import { publishedPosts } from "../../lib/routing";
+import { splitEntries } from "../../lib/paths";
+
+// Default-locale (EN) posts only — they live at the root /posts/<stem>/.
+// ES/FR posts are emitted by frontend/pages/[locale]/posts/[...slug].astro.
+export async function getStaticPaths() {
+  const { root } = splitEntries(await publishedPosts());
+  return root.map(({ entry, slug }) => ({ params: { slug }, props: { post: entry } }));
+}
+
+const { post } = Astro.props;
+---
+
+<PostPage post={post} locale={DEFAULT_LOCALE} />
